@@ -6,6 +6,7 @@ import { getCorsOrigins } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 import authRoutes from './modules/auth/auth.routes';
+import googleRoutes from './routes/google';
 import healthRoutes from './routes/health';
 
 const app = express();
@@ -37,6 +38,7 @@ app.get('/', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', googleRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

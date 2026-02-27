@@ -25,10 +25,16 @@ npm run dev
 
 API health check:
 
-- `GET http://localhost:8080/api/health`
+- `GET http://localhost:5000/api/health`
 
 Auth routes:
 
-- `POST http://localhost:8080/auth/register`
-- `POST http://localhost:8080/auth/login`
-- `GET http://localhost:8080/auth/me` (requires `Authorization: Bearer <token>`)
+- `POST http://localhost:5000/auth/register`
+- `POST http://localhost:5000/auth/login`
+- `GET http://localhost:5000/auth/me` (requires `Authorization: Bearer <token>`)
+
+Google Fit OAuth routes:
+
+- `GET http://localhost:5000/api/google/connect`
+- `GET http://localhost:5000/api/google/callback`
+- `GET http://localhost:5000/api/google/steps`
