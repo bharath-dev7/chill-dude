@@ -5,18 +5,20 @@ import { apiFetch, setAuthToken } from '../lib/apiClient';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [authMode, setAuthMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
 
     try {
-      const payload = await apiFetch('/auth/login', {
+      const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+      const payload = await apiFetch(endpoint, {
         method: 'POST',
         body: JSON.stringify({
           email,
@@ -46,11 +48,13 @@ const LoginPage = () => {
       <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-8 border border-white/20">
         <h1 className="text-4xl font-bold text-center text-blue-900 mb-2 font-serif hidden">Chill Dude</h1>
         <h2 className="text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2 font-sans tracking-tight">
-          Welcome Back
+          {authMode === 'login' ? 'Welcome Back' : 'Create Account'}
         </h2>
-        <p className="text-center text-blue-600/60 mb-8">Your companion for a calmer day</p>
+        <p className="text-center text-blue-600/60 mb-8">
+          {authMode === 'login' ? 'Your companion for a calmer day' : 'Start your calmer day journey'}
+        </p>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleAuthSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-blue-900/70 mb-2">Email</label>
             <input
@@ -83,7 +87,26 @@ const LoginPage = () => {
             disabled={isSubmitting}
             className="w-full py-4 bg-blue-600 text-white rounded-2xl font-semibold shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Signing In...' : 'Login'}
+            {isSubmitting
+              ? authMode === 'login'
+                ? 'Signing In...'
+                : 'Creating Account...'
+              : authMode === 'login'
+                ? 'Login'
+                : 'Sign Up'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMode((prev) => (prev === 'login' ? 'register' : 'login'));
+              setErrorMessage('');
+            }}
+            className="w-full text-sm text-blue-700/80 hover:text-blue-800 font-medium"
+          >
+            {authMode === 'login'
+              ? "Don't have an account? Sign Up"
+              : 'Already have an account? Login'}
           </button>
         </form>
       </div>
