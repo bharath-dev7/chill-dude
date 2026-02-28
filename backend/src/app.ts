@@ -12,9 +12,31 @@ import healthRoutes from './routes/health';
 const app = express();
 const allowedOrigins = getCorsOrigins();
 
+const isOriginAllowed = (origin: string): boolean => {
+  for (const pattern of allowedOrigins) {
+    if (pattern === origin) {
+      return true;
+    }
+
+    if (!pattern.includes('*')) {
+      continue;
+    }
+
+    const regexPattern = `^${pattern
+      .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')}$`;
+
+    if (new RegExp(regexPattern, 'i').test(origin)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || isOriginAllowed(origin)) {
       callback(null, true);
       return;
     }
