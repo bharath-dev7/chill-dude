@@ -1,10 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft, User as UserIcon, Mail, Phone, BookOpen, GraduationCap,
+    ArrowLeft, User as UserIcon, Phone, BookOpen, GraduationCap,
     Upload, Calendar, Plus, Heart, Activity, AlertCircle, Trash2, Check, Smartphone, Moon
 } from 'lucide-react';
 import Logo from '../components/Logo';
+import { apiFetch, getApiBaseUrl } from '../lib/apiClient';
+
+const extractStepsFromAggregate = (payload) => {
+    let totalSteps = 0;
+    const buckets = Array.isArray(payload?.bucket) ? payload.bucket : [];
+
+    for (const bucket of buckets) {
+        const datasets = Array.isArray(bucket?.dataset) ? bucket.dataset : [];
+        for (const dataset of datasets) {
+            const points = Array.isArray(dataset?.point) ? dataset.point : [];
+            for (const point of points) {
+                const values = Array.isArray(point?.value) ? point.value : [];
+                for (const value of values) {
+                    if (typeof value?.intVal === 'number') {
+                        totalSteps += value.intVal;
+                    } else if (typeof value?.fpVal === 'number') {
+                        totalSteps += Math.round(value.fpVal);
+                    }
+                }
+            }
+        }
+    }
+
+    return totalSteps;
+};
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -19,6 +44,51 @@ const ProfilePage = () => {
         { id: 1, name: 'Mom', phone: '+1 234 567 8900', relation: 'Parent' },
         { id: 2, name: 'Alex', phone: '+1 987 654 3210', relation: 'Friend' }
     ]);
+    const [fitConnected, setFitConnected] = useState(false);
+    const [dailySteps, setDailySteps] = useState(null);
+    const [isFitLoading, setIsFitLoading] = useState(false);
+    const [fitMessage, setFitMessage] = useState('Connect Google Fit and sync to load live steps.');
+    const [fitError, setFitError] = useState('');
+    const [lastSyncedAt, setLastSyncedAt] = useState('');
+
+    const handleGoogleFitConnect = () => {
+        const apiBaseUrl = getApiBaseUrl();
+        if (!apiBaseUrl) {
+            setFitError('API URL is not configured. Set VITE_API_BASE_URL first.');
+            setFitMessage('Connection blocked: missing API base URL configuration.');
+            return;
+        }
+
+        setFitError('');
+        setFitMessage('Complete Google consent in the opened tab, then click Sync Steps.');
+        const oauthUrl = `${apiBaseUrl}/api/google/connect`;
+        const popup = window.open(oauthUrl, '_blank', 'noopener,noreferrer');
+
+        // Fallback for browsers/extensions that block popups on click handlers.
+        if (!popup) {
+            window.location.assign(oauthUrl);
+        }
+    };
+
+    const handleGoogleFitSync = async () => {
+        setIsFitLoading(true);
+        setFitError('');
+
+        try {
+            const payload = await apiFetch('/api/google/steps', { method: 'GET' });
+            const steps = extractStepsFromAggregate(payload);
+
+            setDailySteps(steps);
+            setFitConnected(true);
+            setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            setFitMessage('Google Fit synced successfully.');
+        } catch (error) {
+            setFitConnected(false);
+            setFitError(error.message || 'Failed to sync steps from Google Fit.');
+        } finally {
+            setIsFitLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen relative bg-gradient-to-br from-slate-50 to-blue-50/50 p-4 md:p-8 pt-20 md:pt-24 font-sans text-slate-800">
@@ -213,9 +283,28 @@ const ProfilePage = () => {
                         <div className="sm:w-1/3 flex flex-col items-center justify-center p-6 border-2 border-slate-100 rounded-2xl bg-slate-50 text-center">
                             <Smartphone className="w-10 h-10 text-rose-400 mb-3" />
                             <h3 className="font-bold text-slate-700 mb-2">Google Fit Sync</h3>
-                            <button className="w-full py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl shadow-sm hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2">
-                                <Activity className="w-4 h-4" /> Connected
+                            <button
+                                onClick={handleGoogleFitConnect}
+                                className="w-full py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl shadow-sm hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 mb-2"
+                            >
+                                <Activity className="w-4 h-4" /> {fitConnected ? 'Reconnect' : 'Connect'}
                             </button>
+                            <button
+                                onClick={handleGoogleFitSync}
+                                disabled={isFitLoading}
+                                className="w-full py-2.5 bg-rose-500 border border-rose-500 text-white font-semibold rounded-xl shadow-sm hover:bg-rose-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {isFitLoading ? 'Syncing...' : 'Sync Steps'}
+                            </button>
+                            <p className={`text-xs mt-3 ${fitConnected ? 'text-emerald-600' : 'text-slate-500'}`}>
+                                {fitMessage}
+                            </p>
+                            {fitError ? (
+                                <p className="text-xs mt-2 text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-1">
+                                    {fitError}
+                                </p>
+                            ) : null}
+                            {lastSyncedAt ? <p className="text-[11px] text-slate-400 mt-1">Last synced: {lastSyncedAt}</p> : null}
                         </div>
 
                         {/* Stats Grid */}
@@ -227,7 +316,9 @@ const ProfilePage = () => {
                             </div>
                             <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100">
                                 <div className="text-emerald-400 mb-1"><Activity className="w-5 h-5" /></div>
-                                <div className="text-2xl font-black text-emerald-900">8.2<span className="text-sm font-semibold opacity-60">k</span></div>
+                                <div className="text-2xl font-black text-emerald-900">
+                                    {dailySteps === null ? '--' : dailySteps.toLocaleString()}
+                                </div>
                                 <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mt-1">Daily Steps</div>
                             </div>
                             <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-100 col-span-2 lg:col-span-1">
