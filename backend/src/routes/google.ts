@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Router } from 'express';
-import env from '../config/env';
+import env, { isGoogleOAuthConfigured } from '../config/env';
 
 const router = Router();
 
@@ -9,6 +9,13 @@ let googleAccessToken: string | null = null;
 const GOOGLE_FIT_SCOPE = 'https://www.googleapis.com/auth/fitness.activity.read';
 
 router.get('/google/connect', (_req, res) => {
+  if (!isGoogleOAuthConfigured()) {
+    res.status(503).json({
+      message: 'Google integration is not configured on this server.',
+    });
+    return;
+  }
+
   const params = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
     redirect_uri: env.GOOGLE_REDIRECT_URI,
@@ -22,6 +29,11 @@ router.get('/google/connect', (_req, res) => {
 });
 
 router.get('/google/callback', async (req, res) => {
+  if (!isGoogleOAuthConfigured()) {
+    res.status(503).send('Google integration is not configured on this server.');
+    return;
+  }
+
   try {
     const code = req.query.code;
     if (typeof code !== 'string' || !code.trim()) {
@@ -70,6 +82,13 @@ router.get('/google/callback', async (req, res) => {
 });
 
 router.get('/google/steps', async (_req, res) => {
+  if (!isGoogleOAuthConfigured()) {
+    res.status(503).json({
+      message: 'Google integration is not configured on this server.',
+    });
+    return;
+  }
+
   try {
     if (!googleAccessToken) {
       res.status(400).json({

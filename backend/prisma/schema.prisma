@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -14,4 +15,109 @@ model User {
   name         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  dailyScans     DailyScan[]
+  dailyEntries   DailyEntry[]
+  tasks          Task[]
+  timetableDays  TimetableDay[]
+  focusSessions  FocusSession[]
+  relaxSessions  RelaxSession[]
+}
+
+enum RecommendationMode {
+  focus
+  relax
+}
+
+enum DayLoad {
+  light
+  medium
+  heavy
+}
+
+model DailyScan {
+  id         String   @id @default(uuid())
+  dateKey    String
+  emotion    String
+  confidence Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model DailyEntry {
+  id                 String             @id @default(uuid())
+  dateKey            String
+  text               String
+  summary            String
+  recommendationMode RecommendationMode
+  stressScore        Int
+  reasons            String[]
+  signals            Json
+  submittedAt        DateTime           @default(now())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  title     String
+  dueDate   String?
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model TimetableDay {
+  id        String   @id @default(uuid())
+  dateKey   String
+  load      DayLoad  @default(medium)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model FocusSession {
+  id        String   @id @default(uuid())
+  dateKey   String
+  minutes   Int
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dateKey])
+}
+
+model RelaxSession {
+  id        String   @id @default(uuid())
+  dateKey   String
+  minutes   Int
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dateKey])
 }

@@ -1,117 +1,117 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import { apiFetch, setAuthToken } from '../lib/apiClient';
 
-const LoginPage = () => {
+export default function LoginPage() {
   const navigate = useNavigate();
-  const [authMode, setAuthMode] = useState('login');
+  const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleAuthSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setIsSubmitting(true);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
-      const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+      const endpoint = mode === 'login' ? '/auth/login' : '/auth/register';
       const payload = await apiFetch(endpoint, {
         method: 'POST',
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!payload?.token) {
-        throw new Error('Login succeeded but no auth token was returned.');
+        throw new Error('Authentication succeeded but token was not returned.');
       }
 
       setAuthToken(payload.token);
-      navigate('/scan');
-    } catch (error) {
-      setErrorMessage(error.message || 'Unable to login right now.');
+      navigate('/', { replace: true });
+    } catch (requestError) {
+      setError(requestError.message || 'Unable to continue right now.');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-blue-50 to-lavender-100 p-4">
-      <div className="absolute top-6 left-6 md:top-8 md:left-8">
-        <Logo />
-      </div>
-
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-md rounded-3xl shadow-xl p-8 border border-white/20">
-        <h1 className="text-4xl font-bold text-center text-blue-900 mb-2 font-serif hidden">Chill Dude</h1>
-        <h2 className="text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2 font-sans tracking-tight">
-          {authMode === 'login' ? 'Welcome Back' : 'Create Account'}
-        </h2>
-        <p className="text-center text-blue-600/60 mb-8">
-          {authMode === 'login' ? 'Your companion for a calmer day' : 'Start your calmer day journey'}
-        </p>
-
-        <form onSubmit={handleAuthSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-blue-900/70 mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all bg-white/50"
-              placeholder="hello@chilldude.com"
-              required
-            />
+    <div className="app-shell flex items-center justify-center">
+      <div className="page-wrap grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="panel hidden p-7 lg:block">
+          <Logo />
+          <h1 className="mt-8 text-4xl font-bold tracking-tight text-slate-800">Build calmer days with better structure.</h1>
+          <p className="mt-3 max-w-xl text-slate-600">
+            Daily face scan and journaling drive an automatic recommendation for Focus or Relax mode.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <article className="rounded-xl border border-blue-100 bg-white p-4">
+              <p className="chip">Automatic Flow</p>
+              <p className="mt-3 text-sm text-slate-600">Scan, submit one journal, get mode recommendation instantly.</p>
+            </article>
+            <article className="rounded-xl border border-blue-100 bg-white p-4">
+              <p className="chip">Read-only Diary</p>
+              <p className="mt-3 text-sm text-slate-600">Each day becomes immutable, creating a genuine emotional timeline.</p>
+            </article>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-blue-900/70 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all bg-white/50"
-              placeholder="********"
-              required
-            />
-          </div>
-          {errorMessage ? (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-              {errorMessage}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 bg-blue-600 text-white rounded-2xl font-semibold shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {isSubmitting
-              ? authMode === 'login'
-                ? 'Signing In...'
-                : 'Creating Account...'
-              : authMode === 'login'
-                ? 'Login'
-                : 'Sign Up'}
-          </button>
+        </section>
 
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMode((prev) => (prev === 'login' ? 'register' : 'login'));
-              setErrorMessage('');
-            }}
-            className="w-full text-sm text-blue-700/80 hover:text-blue-800 font-medium"
-          >
-            {authMode === 'login'
-              ? "Don't have an account? Sign Up"
-              : 'Already have an account? Login'}
-          </button>
-        </form>
+        <section className="panel-strong w-full max-w-xl p-6 sm:p-7 lg:justify-self-end">
+          <div className="mb-6 lg:hidden">
+            <Logo />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800">{mode === 'login' ? 'Welcome back' : 'Create account'}</h2>
+          <p className="mt-1 text-sm text-slate-500">Secure login to continue your daily flow.</p>
+
+          <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label className="field-label" htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                className="input-control"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                className="input-control"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                minLength={8}
+                placeholder="At least 8 characters"
+              />
+            </div>
+
+            {error ? (
+              <p className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+            ) : null}
+
+            <button className="btn-primary w-full" disabled={loading} type="submit">
+              {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Sign up'}
+            </button>
+
+            <button
+              className="btn-soft w-full"
+              type="button"
+              onClick={() => {
+                setMode((previous) => (previous === 'login' ? 'register' : 'login'));
+                setError('');
+              }}
+            >
+              {mode === 'login' ? 'Create a new account' : 'Use existing account'}
+            </button>
+          </form>
+        </section>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

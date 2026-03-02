@@ -4,7 +4,7 @@ This frontend is a Vite + React SPA prepared for:
 
 - Frontend hosting on Vercel
 - Backend API hosting on Render
-- Database behind backend (for example Supabase Postgres)
+- Database behind backend (Neon Postgres via backend)
 
 ## Local setup
 
@@ -41,6 +41,7 @@ npm run build
   - `VITE_API_BASE_URL=https://<your-render-service>.onrender.com`
 
 `vercel.json` already includes an SPA rewrite so direct routes like `/dashboard` work on refresh.
+`vercel.json` already includes an SPA rewrite so direct routes like `/recommendation` work on refresh.
 
 ## Backend requirement (Render)
 
@@ -53,3 +54,9 @@ Frontend login now calls:
 
 - `POST /auth/login` with JSON body `{ email, password }`
 - Expected success response includes `token`
+
+After login, the daily app flow is:
+
+1. `/scan`
+2. `/journal`
+3. `/recommendation`
