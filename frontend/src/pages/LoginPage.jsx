@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
-import { apiFetch, setAuthToken } from '../lib/apiClient';
+import { apiFetch, LOCAL_DEMO_TOKEN, setAuthToken } from '../lib/apiClient';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -10,6 +10,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const enterLocalMode = () => {
+    setAuthToken(LOCAL_DEMO_TOKEN);
+    navigate('/', { replace: true });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -99,6 +104,10 @@ export default function LoginPage() {
               {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Sign up'}
             </button>
 
+            <button className="btn-soft w-full" type="button" onClick={enterLocalMode}>
+              Continue in local mode
+            </button>
+
             <button
               className="btn-soft w-full"
               type="button"
@@ -110,6 +119,10 @@ export default function LoginPage() {
               {mode === 'login' ? 'Create a new account' : 'Use existing account'}
             </button>
           </form>
+
+          <p className="mt-4 text-xs text-slate-500">
+            Local mode keeps data on this device when backend auth or database access is unavailable.
+          </p>
         </section>
       </div>
     </div>

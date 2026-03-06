@@ -1,6 +1,7 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
 const DEFAULT_TIMEOUT_MS = 12000;
 const DEFAULT_RETRIES = 1;
+export const LOCAL_DEMO_TOKEN = 'local-demo-mode';
 
 export function getApiBaseUrl() {
   return API_BASE_URL;
@@ -8,6 +9,10 @@ export function getApiBaseUrl() {
 
 export function getAuthToken() {
   return localStorage.getItem('auth_token');
+}
+
+export function isLocalDemoToken(token = getAuthToken()) {
+  return token === LOCAL_DEMO_TOKEN;
 }
 
 export function setAuthToken(token) {
@@ -88,6 +93,10 @@ export async function apiFetch(path, options = {}) {
 
       if (isAbort) {
         throw new Error('Request timed out. Please try again.');
+      }
+
+      if (error instanceof TypeError) {
+        throw new Error(`Cannot reach backend at ${API_BASE_URL}. Start backend and retry.`);
       }
 
       throw error;

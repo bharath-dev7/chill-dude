@@ -53,12 +53,17 @@ export default function JournalPage() {
       <AppShell
         title="Daily Journal"
         subtitle="Today is already submitted and locked to preserve diary authenticity."
+        flowStep={2}
+        hideNav
       >
         <section className="panel-strong mx-auto max-w-3xl space-y-4 p-5 sm:p-7">
-          <article className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+          <article className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-rose-50 p-4">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-lg font-semibold text-slate-800">{dateLabel}</h2>
-              <p className="chip">Read-only</p>
+              <div className="flex items-center gap-2">
+                <p className="chip">Step 2 of 3</p>
+                <p className="chip">Read-only</p>
+              </div>
             </div>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{todayEntry.text}</p>
           </article>
@@ -67,7 +72,7 @@ export default function JournalPage() {
             <p className="text-sm font-semibold text-indigo-700">Auto summary</p>
             <p className="mt-2 text-sm text-slate-700">{todayEntry.summary}</p>
             <p className="mt-3 text-xs text-slate-500">
-              Face signal used: <strong>{todayEntry.recommendation.signals.face}</strong>
+              Face signal used: <strong>{todayFaceScan?.emotion || todayEntry.recommendation.signals.face}</strong>
             </p>
           </article>
 
@@ -83,6 +88,8 @@ export default function JournalPage() {
     <AppShell
       title="Daily Journal"
       subtitle="One honest entry for today. After submit it becomes immutable."
+      flowStep={2}
+      hideNav
     >
       <section className="panel-strong mx-auto max-w-3xl p-5 sm:p-7">
         {!hasTodayFaceScan ? (
@@ -105,11 +112,14 @@ export default function JournalPage() {
             />
           </div>
 
-          <article className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-slate-600">
-            <p className="flex items-center gap-2 font-semibold text-slate-700">
-              <Lock size={16} />
-              Journal rule
-            </p>
+          <article className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-rose-50 p-4 text-sm text-slate-600">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-2 font-semibold text-slate-700">
+                <Lock size={16} />
+                Journal rule
+              </p>
+              <p className="chip">Step 2 of 3</p>
+            </div>
             <p className="mt-2">After submission, this entry will remain read-only to keep your diary timeline trustworthy.</p>
             {hasTodayFaceScan ? (
               <p className="mt-2 text-xs text-blue-700">

@@ -12,7 +12,7 @@ const Logo = ({ className = "" }) => {
                     className="h-7 md:h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
                 />
             </div>
-            <span className="font-semibold text-lg md:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700">
+            <span className="font-semibold text-lg md:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-600 via-blue-600 to-indigo-700">
                 Chill Dude
             </span>
         </Link>

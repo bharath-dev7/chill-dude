@@ -6,16 +6,18 @@
 
 @layer base {
   :root {
-    --bg-a: #f4f7ff;
-    --bg-b: #e9efff;
-    --surface: rgba(255, 255, 255, 0.86);
+    --bg-a: #eef2ff;
+    --bg-b: #fff1f3;
+    --surface: rgba(255, 255, 255, 0.9);
     --surface-strong: #ffffff;
-    --ink: #1e293b;
+    --ink: #172554;
     --ink-soft: #64748b;
     --accent: #2563eb;
     --accent-deep: #1d4ed8;
-    --line: #dbe7ff;
-    --ring: rgba(37, 99, 235, 0.2);
+    --accent-warm: #e11d48;
+    --accent-warm-deep: #be123c;
+    --line: #dbe4ff;
+    --ring: rgba(59, 130, 246, 0.18);
   }
 
   * {
@@ -26,8 +28,9 @@
     font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
     color: var(--ink);
     background:
-      radial-gradient(1200px 700px at 20% -10%, #e8f0ff 0%, transparent 60%),
-      radial-gradient(900px 500px at 85% 10%, #eef3ff 0%, transparent 60%),
+      radial-gradient(1000px 600px at 12% -8%, rgba(59, 130, 246, 0.18) 0%, transparent 65%),
+      radial-gradient(920px 540px at 88% 4%, rgba(225, 29, 72, 0.16) 0%, transparent 62%),
+      radial-gradient(760px 420px at 50% 100%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
       linear-gradient(160deg, var(--bg-a) 0%, var(--bg-b) 100%);
     min-height: 100vh;
   }
@@ -65,29 +68,31 @@
 
   .chip {
     @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold;
-    border-color: #bfd5ff;
-    color: #1e40af;
-    background: #eaf1ff;
+    border-color: #c7d9ff;
+    color: #1d4ed8;
+    background: #eef4ff;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-colors;
-    background: var(--accent);
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all;
+    background: linear-gradient(135deg, var(--accent-warm) 0%, var(--accent) 100%);
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.18);
   }
 
   .btn-primary:hover {
-    background: var(--accent-deep);
+    background: linear-gradient(135deg, var(--accent-warm-deep) 0%, var(--accent-deep) 100%);
+    box-shadow: 0 14px 34px rgba(225, 29, 72, 0.18);
   }
 
   .btn-soft {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors;
-    border-color: #c8dbff;
-    color: #1d4ed8;
-    background: #eff5ff;
+    border-color: #d6defc;
+    color: #1e3a8a;
+    background: rgba(255, 255, 255, 0.92);
   }
 
   .btn-soft:hover {
-    background: #e5efff;
+    background: #f5f7ff;
   }
 
   .field-label {

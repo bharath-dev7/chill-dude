@@ -110,13 +110,3 @@ export function decideRecommendation({ faceSignal, journalText }) {
     },
   };
 }
-
-export function randomFaceSignal() {
-  const options = [
-    { emotion: 'calm', confidence: 0.74 },
-    { emotion: 'neutral', confidence: 0.71 },
-    { emotion: 'tired', confidence: 0.76 },
-    { emotion: 'stressed', confidence: 0.72 },
-  ];
-  return options[Math.floor(Math.random() * options.length)];
-}
